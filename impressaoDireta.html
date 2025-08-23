@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Comanda Ferragem na Mão</title>
+  <style>
+    body {
+      font-family: monospace; /* fonte fixa para tabulação */
+      background: #fff7f0;
+      margin: 0;
+      padding: 10px;
+      color: #333;
+    }
+
+    header {
+      text-align: center;
+      background: #ff6f00;
+      color: white;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+
+    h2 { color: #e65100; margin-bottom: 5px; }
+
+    form input, form button {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    form button {
+      background: #ff6f00;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    form button:hover { background: #e65100; }
+
+    .cards {
+      margin-top: 10px;
+      padding: 0;
+      white-space: pre; /* mantém espaços para tabulação */
+    }
+
+    .card {
+      background: #fff3e0;
+      border: 1px solid #ffcc80;
+      border-radius: 5px;
+      padding: 5px;
+      margin-bottom: 5px;
+    }
+
+    .card p { margin: 2px 0; font-size: 12px; }
+
+    .total {
+      font-weight: bold;
+      text-align: right;
+      margin-top: 5px;
+      font-size: 14px;
+      color: #e65100;
+    }
+
+    /* Ajustes para impressão em bobina 80mm */
+    @media print {
+      body { width: 80mm; }
+      header, .card, .total { width: 100%; page-break-inside: avoid; }
+      button, input, form { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <style>
+      h1, h2 {
+        margin: 0;       /* remove margens automáticas */
+        padding: 0;      /* remove espaçamentos extras */
+        line-height: 1;  /* compacta a altura da linha */
+      }
+    </style>
+    
+    <h1>Ferragem na Mão</h1>
+    <h2>Comanda Interna</h2>
+    
+  </header>
+
+  <form id="form-produto">
+    <input type="text" id="nome-produto" placeholder="Nome do Produto" required autofocus/>
+    <input type="number" id="quantidade" placeholder="Quantidade" required />
+    <input type="number" id="preco" placeholder="Preço" step="0.01" required />
+        <button type="submit">Adicionar Produto</button>
+  </form>
+
+  <div class="cards" id="lista-produtos"></div>
+  <button onclick="imprimirComanda()">Imprimir Comanda</button>
+
+  <script>
+    const form = document.getElementById("form-produto");
+    const listaProdutos = document.getElementById("lista-produtos");
+    const totalPedidoElem = document.getElementById("total-pedido");
+
+    let produtos = [];
+
+    function atualizarTotal() {
+      const total = produtos.reduce((acc, p) => acc + (p.preco * p.quantidade), 0);
+    //  totalPedidoElem.textContent = `Total do Pedido:R$ ${total.toFixed(2)}`;
+    }
+
+    function renderizarProdutos() {
+      listaProdutos.innerHTML = "";
+
+      if(produtos.length === 0) return atualizarTotal();
+
+      // Cabeçalho da "tabela"
+let cabecalho  = "PRODUTO".padEnd(20);
+cabecalho     += "QTD".padStart(6);
+cabecalho     += "PREÇO".padStart(10);
+cabecalho     += "TOTAL".padStart(12) + "\n";
+
+let separador = "-".repeat(48) + "\n";
+
+listaProdutos.innerText = cabecalho + separador;
+
+let totalGeral = 0;
+
+produtos.forEach((p) => {
+  const subtotal = p.preco * p.quantidade;
+  totalGeral += subtotal;
+
+  const nome       = p.nome.padEnd(20);
+  const quantidade = p.quantidade.toString().padStart(6);
+  const preco      = p.preco.toFixed(2).padStart(10);
+  const total      = subtotal.toFixed(2).padStart(12);
+
+  const linha = `${nome}${quantidade}${preco}${total}\n`;
+  listaProdutos.innerText += linha;
+});
+
+// Rodapé com total geral
+listaProdutos.innerText += separador;
+const rodape = "TOTAL GERAL:".padEnd(36) + totalGeral.toFixed(2).padStart(12) + "\n";
+listaProdutos.innerText += rodape;
+
+// Avança 2 linhas (ESC d 2) e corta o papel (GS V 0)
+listaProdutos.innerText += "\x1Bd\x02";  // avança 2 linhas
+listaProdutos.innerText += "\x1DV\x00";  // corte total
+
+      atualizarTotal();
+    }
+
+    function imprimirComanda() {
+      window.print();
+      // após imprimir, limpa a lista
+      produtos = [];
+      renderizarProdutos();
+    }
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const nome = document.getElementById("nome-produto").value;
+      const quantidade = parseInt(document.getElementById("quantidade").value);
+      const preco = parseFloat(document.getElementById("preco").value);
+      
+      produtos.push({ nome, quantidade, preco });
+      form.reset();
+      document.getElementById("nome-produto").focus();
+      renderizarProdutos();
+    });
+
+    // Funções extras para edição/remover
+    // Seleciona produto pelo índice
+    function editarProduto(index) {
+      const p = produtos[index];
+      const novoPreco = parseFloat(prompt("Novo preço:", p.preco));
+      const novaQuantidade = parseInt(prompt("Nova quantidade:", p.quantidade));
+      if(!isNaN(novoPreco)) p.preco = novoPreco;
+      if(!isNaN(novaQuantidade)) p.quantidade = novaQuantidade;
+      renderizarProdutos();
+    }
+
+    function removerProduto(index) {
+      produtos.splice(index, 1);
+      renderizarProdutos();
+    }
+  </script>
+</body>
+</html>
