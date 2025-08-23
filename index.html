@@ -69,10 +69,15 @@
     }
 
   /* Ajustes para impressão em bobina 80mm */
-@media print {
+  @media print {
+  @page {
+    margin: 0;           /* remove margens automáticas da impressora */
+    size: 80mm auto;     /* largura da bobina 80mm, altura automática */
+  }
+
   body { 
     width: 80mm; 
-    margin: 0;          /* remove margens brancas */
+    margin: 0;           
     padding: 0; 
     font-size: 13pt; 
     line-height: 1.4; 
@@ -93,7 +98,7 @@
 
   /* Coluna do nome do produto ajustada */
   .cards td:first-child {
-    max-width: 35mm;    /* reduz descrição p/ caber */
+    max-width: 35mm;    
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -103,6 +108,7 @@
     display: none; 
   }
 }
+
 
 
   </style>
