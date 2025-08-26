@@ -45,6 +45,9 @@ form button:hover { background: #e65100; }
     .cards { font-size: 14pt; line-height: 1.4; width: 100%; }
     header, .cards { width: 100%; margin: 0; padding: 0; page-break-inside: avoid; }
     form, button { display: none; }
+
+    
+
 }
 </style>
 </head>
@@ -123,16 +126,9 @@ function renderizarProdutos() {
 }
 
 function imprimirComanda() {
-    const conteudo = listaProdutos.innerText;
-    const win = window.open("", "PRINT", "height=600,width=400");
-    win.document.write("<pre style='font-family: monospace;'>");
-    win.document.write(conteudo);
-    win.document.write("</pre>");
-    win.document.close();
-    win.focus();
-    win.print();
-    win.close();
+    window.print(); // usa o documento atual, respeitando @media print
 
+    // limpa tudo após imprimir
     produtos = [];
     nomeCliente = "";
     listaProdutos.innerText = "";
@@ -142,6 +138,7 @@ function imprimirComanda() {
     formProduto.style.display = "none";
     document.getElementById("nome-cliente").focus();
 }
+
 
 formCliente.addEventListener("submit", e => {
     e.preventDefault();
