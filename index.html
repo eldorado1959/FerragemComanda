@@ -1,231 +1,167 @@
 
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Comanda Ferragem na Mão</title>
-  <style>
-    body {
-      font-family: monospace; /* fonte fixa para tabulação */
-      background: #fff7f0;
-      margin: 0;
-      padding: 10px;
-      color: #333;
-    }
-
-    header {
-      text-align: center;
-      background: #ff6f00;
-      color: white;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-    }
-
-    h2 { color: #e65100; margin-bottom: 5px; }
-
-    form input, form button {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
-
-    form button {
-      background: #ff6f00;
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    form button:hover { background: #e65100; }
-
-    .cards {
-      margin-top: 10px;
-      padding: 0;
-      white-space: pre; /* mantém espaços para tabulação */
-    }
-
-    .card {
-      background: #fff3e0;
-      border: 1px solid #ffcc80;
-      border-radius: 5px;
-      padding: 5px;
-      margin-bottom: 5px;
-    }
-
-    .card p { margin: 2px 0; font-size: 12px; }
-
-    .total {
-      font-weight: bold;
-      text-align: right;
-      margin-top: 5px;
-      font-size: 14px;
-      color: #e65100;
-    }
-
-  /* Ajustes para impressão em bobina 80mm */
-  @media print {
-  @page {
-    margin: 0;           /* remove margens automáticas da impressora */
-    size: 80mm auto;     /* largura da bobina 80mm, altura automática */
-  }
-
-  body { 
-    width: 80mm; 
-    margin: 0;           
-    padding: 0; 
-    font-size: 13pt; 
-    line-height: 1.4; 
-  }
-
-  .cards {
-    font-size: 13pt;
-    line-height: 1.4;
-    width: 100%;
-  }
-
-  header, .card, .total { 
-    width: 100%; 
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Comanda Profissional Ferragem na Mão</title>
+<style>
+body {
+    font-family: monospace;
+    background: #fff7f0;
     margin: 0;
-    padding: 0;
-    page-break-inside: avoid; 
-  }
-
-  /* Coluna do nome do produto ajustada */
-  .cards td:first-child {
-    max-width: 35mm;    
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  button, input, form { 
-    display: none; 
-  }
+    padding: 10px;
+    color: #333;
 }
-
-
-
-  </style>
+header {
+    text-align: center;
+    background: #ff6f00;
+    color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+h2 { color: #e65100; margin-bottom: 5px; }
+form input, form button {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+form button {
+    background: #ff6f00;
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+form button:hover { background: #e65100; }
+.cards { margin-top: 10px; padding: 0; white-space: pre; }
+@media print {
+    @page { margin: 0; size: 80mm auto; }
+    body { width: 80mm; margin: 0; padding: 0; font-size: 14pt; line-height: 1.4; }
+    .cards { font-size: 14pt; line-height: 1.4; width: 100%; }
+    header, .cards { width: 100%; margin: 0; padding: 0; page-break-inside: avoid; }
+    form, button { display: none; }
+}
+</style>
 </head>
 <body>
-  <header>
-    <style>
-      h1, h2 {
-        margin: 0;       /* remove margens automáticas */
-        padding: 0;      /* remove espaçamentos extras */
-        line-height: 1;  /* compacta a altura da linha */
-      }
-    </style>
-    
-    <h1>Ferragem na Mão</h1>
-    <h2>Comanda Interna</h2>
-    
-  </header>
+<header>
+<h1>Ferragem na Mão</h1>
+<h2>Comanda Interna</h2>
+</header>
 
-  <form id="form-produto">
-    <input type="text" id="nome-produto" placeholder="Nome do Produto" required autofocus/>
-    <input type="number" id="quantidade" placeholder="Quantidade" required />
-    <input type="number" id="preco" placeholder="Preço" step="0.01" required />
-        <button type="submit">Adicionar Produto</button>
-  </form>
+<!-- Nome do Cliente -->
+<form id="form-cliente">
+    <input type="text" id="nome-cliente" placeholder="Nome do Cliente" required autofocus/>
+    <button type="submit">Iniciar Venda</button>
+</form>
 
-  <div class="cards" id="lista-produtos"></div>
-  <button onclick="imprimirComanda()">Imprimir Comanda</button>
+<!-- Cadastro de produtos -->
+<form id="form-produto" style="display:none;">
+    <input type="text" id="nome-produto" placeholder="Nome do Produto" required/>
+    <input type="number" id="quantidade" placeholder="Quantidade" required/>
+    <input type="number" id="preco" placeholder="Preço" step="0.01" required/>
+    <button type="submit">Adicionar Produto</button>
+</form>
 
-  <script>
-    const form = document.getElementById("form-produto");
-    const listaProdutos = document.getElementById("lista-produtos");
-    const totalPedidoElem = document.getElementById("total-pedido");
+<div class="cards" id="lista-produtos"></div>
+<button id="btnImprimir" style="display:none;" onclick="imprimirComanda()">Imprimir Comanda</button>
 
-    let produtos = [];
+<script>
+const formCliente = document.getElementById("form-cliente");
+const formProduto = document.getElementById("form-produto");
+const listaProdutos = document.getElementById("lista-produtos");
+const btnImprimir = document.getElementById("btnImprimir");
 
-    function atualizarTotal() {
-      const total = produtos.reduce((acc, p) => acc + (p.preco * p.quantidade), 0);
-    //  totalPedidoElem.textContent = `Total do Pedido:R$ ${total.toFixed(2)}`;
-    }
+let produtos = [];
+let nomeCliente = "";
 
-    function renderizarProdutos() {
-      listaProdutos.innerHTML = "";
+function renderizarProdutos() {
+    listaProdutos.innerHTML = "";
+    if(produtos.length === 0) return;
 
-      if(produtos.length === 0) return atualizarTotal();
+    const margem = "    "; // 4 espaços
 
-      // Cabeçalho da "tabela"
-let cabecalho  = "PRODUTO".padEnd(20);
-cabecalho     += "QTD".padStart(6);
-cabecalho     += "PREÇO".padStart(10);
-cabecalho     += "TOTAL".padStart(12) + "\n";
+    // Cabeçalho
+    let cabecalho = `${margem}CLIENTE: ${nomeCliente.toUpperCase()}\n\n`;
+    cabecalho += margem + "PRODUTO".padEnd(20) + "QTD".padStart(6) + "PREÇO".padStart(10) + "TOTAL".padStart(12) + "\n";
+    let separador = margem + "-".repeat(48) + "\n";
 
-let separador = "-".repeat(48) + "\n";
+    listaProdutos.innerText = cabecalho + separador;
 
-listaProdutos.innerText = cabecalho + separador;
+    let totalGeral = 0;
 
-let totalGeral = 0;
+    produtos.forEach(p => {
+        const subtotal = p.preco * p.quantidade;
+        totalGeral += subtotal;
 
-produtos.forEach((p) => {
-  const subtotal = p.preco * p.quantidade;
-  totalGeral += subtotal;
+        const nome = p.nome.padEnd(20);
+        const quantidade = p.quantidade.toString().padStart(6); // destaque quantidade
+        const preco = p.preco.toFixed(2).padStart(10);
+        const total = subtotal.toFixed(2).padStart(12);
 
-  const nome       = p.nome.padEnd(20);
-  const quantidade = p.quantidade.toString().padStart(6);
-  const preco      = p.preco.toFixed(2).padStart(10);
-  const total      = subtotal.toFixed(2).padStart(12);
-
-  const linha = `${nome}${quantidade}${preco}${total}\n`;
-  listaProdutos.innerText += linha;
-});
-
-// Rodapé com total geral
-listaProdutos.innerText += separador;
-const rodape = "TOTAL GERAL:".padEnd(36) + totalGeral.toFixed(2).padStart(12) + "\n";
-listaProdutos.innerText += rodape;
-
-// Avança 2 linhas (ESC d 2) e corta o papel (GS V 0)
-listaProdutos.innerText += "\x1Bd\x02";  // avança 2 linhas
-listaProdutos.innerText += "\x1DV\x00";  // corte total
-
-      atualizarTotal();
-    }
-
-    function imprimirComanda() {
-      window.print();
-      // após imprimir, limpa a lista
-      produtos = [];
-      renderizarProdutos();
-    }
-
-    form.addEventListener("submit", e => {
-      e.preventDefault();
-      const nome = document.getElementById("nome-produto").value;
-      const quantidade = parseInt(document.getElementById("quantidade").value);
-      const preco = parseFloat(document.getElementById("preco").value);
-      
-      produtos.push({ nome, quantidade, preco });
-      form.reset();
-      document.getElementById("nome-produto").focus();
-      renderizarProdutos();
+        listaProdutos.innerText += `${margem}${nome}${quantidade}${preco}${total}\n`;
     });
 
-    // Funções extras para edição/remover
-    // Seleciona produto pelo índice
-    function editarProduto(index) {
-      const p = produtos[index];
-      const novoPreco = parseFloat(prompt("Novo preço:", p.preco));
-      const novaQuantidade = parseInt(prompt("Nova quantidade:", p.quantidade));
-      if(!isNaN(novoPreco)) p.preco = novoPreco;
-      if(!isNaN(novaQuantidade)) p.quantidade = novaQuantidade;
-      renderizarProdutos();
-    }
+    // Total destacado
+    listaProdutos.innerText += separador;
+    listaProdutos.innerText += `${margem}================== TOTAL GERAL =================\n`;
+    listaProdutos.innerText += `${margem}TOTAL: R$ ${totalGeral.toFixed(2)}\n`;
+    listaProdutos.innerText += `${margem}================================================\n`;
 
-    function removerProduto(index) {
-      produtos.splice(index, 1);
-      renderizarProdutos();
-    }
-  </script>
+    // Data/Hora
+    listaProdutos.innerText += `${margem}DATA/HORA: ${new Date().toLocaleString("pt-BR")}\n`;
+
+    // Pula 2 linhas extras
+    listaProdutos.innerText += "\n\n";
+
+    btnImprimir.style.display = "inline-block";
+}
+
+function imprimirComanda() {
+    const conteudo = listaProdutos.innerText;
+    const win = window.open("", "PRINT", "height=600,width=400");
+    win.document.write("<pre style='font-family: monospace;'>");
+    win.document.write(conteudo);
+    win.document.write("</pre>");
+    win.document.close();
+    win.focus();
+    win.print();
+    win.close();
+
+    produtos = [];
+    nomeCliente = "";
+    listaProdutos.innerText = "";
+    btnImprimir.style.display = "none";
+    formCliente.reset();
+    formCliente.style.display = "block";
+    formProduto.style.display = "none";
+    document.getElementById("nome-cliente").focus();
+}
+
+formCliente.addEventListener("submit", e => {
+    e.preventDefault();
+    nomeCliente = document.getElementById("nome-cliente").value.trim();
+    if (nomeCliente === "") { alert("Digite o nome do cliente!"); return; }
+    formCliente.style.display = "none";
+    formProduto.style.display = "block";
+    document.getElementById("nome-produto").focus();
+});
+
+formProduto.addEventListener("submit", e => {
+    e.preventDefault();
+    const nome = document.getElementById("nome-produto").value;
+    const quantidade = parseInt(document.getElementById("quantidade").value);
+    const preco = parseFloat(document.getElementById("preco").value);
+    produtos.push({ nome, quantidade, preco });
+    formProduto.reset();
+    document.getElementById("nome-produto").focus();
+    renderizarProdutos();
+});
+</script>
 </body>
 </html>
